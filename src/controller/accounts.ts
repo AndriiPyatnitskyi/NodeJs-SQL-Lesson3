@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 
 import * as fs from 'fs';
-import {Role, Account} from "../model/account";
+import {Role, Account} from "../dto/account";
 
 const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");

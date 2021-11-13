@@ -1,12 +1,20 @@
-class Account {
-    id  : number;
-    name: String;
-    token: String;
-    role: Role;
-}
+import Sequelize from "sequelize";
 
-enum Role {
-    USER = "USER", ADMIN = "ADMIN", ANONYMOUS = "ANONYMOUS"
-}
+const account = (sequelize: any) => {
+    return sequelize.define('accounts', {
+    // attributes
+    name: {
+        type: Sequelize.STRING
+    },
+    token: {
+        type: Sequelize.STRING
+    },
+    role: {
+        type: Sequelize.STRING
+    },
+}, {
+// options
+})};
 
-export { Account, Role };
+module.exports = account;
+

@@ -1,6 +1,6 @@
 import express from 'express';
 import controller from '../controller/tokens';
-import {Role} from "../model/account";
+import {Role} from "../dto/account";
 
 const permit = require("../middleware/auth");
 

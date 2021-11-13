@@ -1,5 +1,5 @@
 import {Response} from "express";
-import {Account, Role} from "../model/account";
+import {Account, Role} from "../dto/account";
 import {UserAuthInfoRequest} from "../types/userAuthInfoRequest";
 
 const jwt = require("jsonwebtoken");
