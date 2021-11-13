@@ -6,7 +6,7 @@ class Account {
 }
 
 enum Role {
-    USER = "USER", ADMIN = "ADMIN"
+    USER = "USER", ADMIN = "ADMIN", ANONYMOUS = "ANONYMOUS"
 }
 
 export { Account, Role };

@@ -8,6 +8,11 @@ const secretKey = "mySecretKey";
 
 const permit = (permittedRoles: [Role]) => {
     return (req: UserAuthInfoRequest, res: Response, next: any) => {
+
+        if (permittedRoles.includes(Role.ANONYMOUS)) {
+            next();
+        }
+
         const token = req.body?.token || req.query.token || req.headers["x-access-token"];
 
         if (!token) {
