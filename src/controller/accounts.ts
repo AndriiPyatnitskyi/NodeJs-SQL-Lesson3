@@ -13,9 +13,7 @@ const getAccounts: any = async (req: Request, res: Response) => {
 };
 
 const getAccountById: any = async (req: Request, res: Response) => {
-    const id = req.params.id;
-
-    const result = await models.default.AccountModel.findByPk(id);
+    const result = await models.default.AccountModel.findByPk(req.params.id);
 
     if (result) {
         res.send(result);
@@ -81,19 +79,10 @@ const deleteAccount: any = async (req: Request, res: Response) => {
 };
 
 const getAccountTokensByAccountId: any = async (req: Request, res: Response) => {
-    const id = +req.params.id;
-    const content = fs.readFileSync(filePath, "utf8");
-    const accounts = JSON.parse(content);
-    let account: Account = new Account();
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == id) {
-            account = accounts[i];
-            break;
-        }
-    }
+    const result = await models.default.AccountModel.findByPk(req.params.id);
 
-    if (account) {
-        res.send(account.token);
+    if (result) {
+        res.send(result.token);
     } else {
         res.status(404).send();
     }
