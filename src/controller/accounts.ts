@@ -91,31 +91,26 @@ const getAccountTokensByAccountId: any = async (req: Request, res: Response) => 
 const createAccountToken: any = async (req: Request, res: Response) => {
     if (!req.body) return res.sendStatus(400);
 
-    const accountId: number = +req.params.id;
+    const account = await models.default.AccountModel.findByPk(req.params.id);
 
-    let data = fs.readFileSync(filePath, "utf8");
-
-    const accounts: [Account] = JSON.parse(data);
-    let account: Account = new Account();
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == accountId) {
-            account = accounts[i];
-            break;
-        }
-    }
-
-    if (account) {
-        account.token = jwt.sign(
-            {account_name: account.name},
-            secretKey,
-            {
-                expiresIn: "2h",
+    const updated = await models.default.AccountModel.update(
+        {
+            token: jwt.sign(
+                {account_name: account.name},
+                secretKey,
+                {
+                    expiresIn: "2h",
+                }
+            )
+        },
+        {
+            where: {
+                id: req.params.id
             }
-        );
+        });
 
-        data = JSON.stringify(accounts);
-        fs.writeFileSync("accounts.json", data);
-        res.send(account);
+    if (updated == 1) {
+        res.send(await models.default.AccountModel.findByPk(req.params.id));
     } else {
         res.status(404).send(account);
     }
