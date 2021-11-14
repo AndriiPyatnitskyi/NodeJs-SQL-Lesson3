@@ -48,27 +48,20 @@ const createAccount: any = async (req: Request, res: Response) => {
 const updateAccount: any = async (req: Request, res: Response) => {
     if (!req.body) return res.sendStatus(400);
 
-    const accountId = req.params.id;
-    const accountName: String = req.body.name;
+    let result = await models.default.AccountModel.update(
+        {
+            name: req.body.name
+        },
+        {
+            where: {
+                id: req.params.id
+            }
+        });
 
-    let data = fs.readFileSync(filePath, "utf8");
-
-    const accounts = JSON.parse(data);
-    let account;
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == accountId) {
-            account = accounts[i];
-            break;
-        }
-    }
-
-    if (account) {
-        account.name = accountName;
-        data = JSON.stringify(accounts);
-        fs.writeFileSync("accounts.json", data);
-        res.send(account);
+    if (result == 1) {
+        res.send(await models.default.AccountModel.findByPk(req.params.id));
     } else {
-        res.status(404).send(account);
+        res.status(404).send(req.params.id);
     }
 };
 
