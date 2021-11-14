@@ -66,22 +66,15 @@ const updateAccount: any = async (req: Request, res: Response) => {
 };
 
 const deleteAccount: any = async (req: Request, res: Response) => {
-    const id = req.params.id;
-    let data = fs.readFileSync(filePath, "utf8");
-    let accounts = JSON.parse(data);
-    let index = -1;
+    let result = await models.default.AccountModel.destroy(
+        {
+            where: {
+                id: req.params.id
+            }
+        });
 
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == id) {
-            index = i;
-            break;
-        }
-    }
-    if (index > -1) {
-        const account = accounts.splice(index, 1)[0];
-        data = JSON.stringify(accounts);
-        fs.writeFileSync(filePath, data);
-        res.send(account);
+    if (result == 1) {
+        res.sendStatus(204);
     } else {
         res.status(404).send();
     }
