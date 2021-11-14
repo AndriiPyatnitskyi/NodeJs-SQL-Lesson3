@@ -8,27 +8,17 @@ const models = require("../server");
 const filePath = "./accounts.json";
 
 const getAccounts: any = async (req: Request, res: Response) => {
-    // const content = fs.readFileSync(filePath, "utf8");
-    // const accounts: [Account] = JSON.parse(content);
     const result = await models.default.AccountModel.findAll();
     res.send(result);
 };
 
 const getAccountById: any = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const content = fs.readFileSync(filePath, "utf8");
-    const accounts = JSON.parse(content);
-    let account = null;
 
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == id) {
-            account = accounts[i];
-            break;
-        }
-    }
+    const result = await models.default.AccountModel.findByPk(id);
 
-    if (account) {
-        res.send(account);
+    if (result) {
+        res.send(result);
     } else {
         res.status(404).send();
     }
