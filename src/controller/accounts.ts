@@ -158,27 +158,27 @@ const updateAccountToken: any = async (req: Request, res: Response) => {
 const deleteAccountToken: any = async (req: Request, res: Response) => {
     if (!req.body) return res.sendStatus(400);
 
-    const accountId = req.params.id;
-    const accountSourceToken: String = req.body.sourceToken;
+    const account = await models.default.AccountModel.findByPk(req.params.id);
 
-    let data = fs.readFileSync(filePath, "utf8");
-
-    const accounts = JSON.parse(data);
-    let account: Account = new Account();
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == accountId) {
-            account = accounts[i];
-            break;
-        }
+    if (!account) {
+        res.status(404).send(req.params.id);
     }
 
-    if (account && account.token && account.token == accountSourceToken) {
-        account.token = "";
-        data = JSON.stringify(accounts);
-        fs.writeFileSync("accounts.json", data);
-        res.send(account);
+    const updated = await models.default.AccountModel.update(
+        {
+            token: ""
+        },
+        {
+            where: {
+                id: req.params.id
+            }
+        });
+
+
+    if (updated == 1) {
+        res.send(await models.default.AccountModel.findByPk(req.params.id));
     } else {
-        res.status(404).send(account);
+        res.sendStatus(500);
     }
 };
 
