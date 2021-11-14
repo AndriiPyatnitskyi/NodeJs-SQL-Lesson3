@@ -1,12 +1,10 @@
 import {Request, Response} from 'express';
-
 import * as fs from 'fs';
 import {Role, Account} from "../dto/account";
 
-const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 const secretKey = "mySecretKey";
-
+const models = require("../server");
 const filePath = "./accounts.json";
 
 const getAccounts: any = async (req: Request, res: Response) => {
@@ -40,29 +38,20 @@ const createAccount: any = async (req: Request, res: Response) => {
 
     const accountName: String = req.body.name;
     const accountRole: Role = req.body.role;
-    let account: Account = new Account();
-    account.name = accountName;
 
-    let data = fs.readFileSync(filePath, "utf8");
-    let accounts = JSON.parse(data);
+    const role = accountRole ? accountRole : Role.USER;
 
-    const id: number = Math.max.apply(Math, accounts.map((o: Account) => o.id));
-    account.id = isFinite(id) ? id + 1 : 0;
-
-    account.role = accountRole ? accountRole : Role.USER;
-
-    account.token = jwt.sign(
-        {account_name: account.name, role: account.role},
+    const token = jwt.sign(
+        {account_name: accountName, role: accountRole},
         secretKey,
         {
             expiresIn: "2h",
         }
     );
 
-    accounts.push(account);
-    data = JSON.stringify(accounts);
-    fs.writeFileSync("accounts.json", data);
-    res.send(account);
+    const result = await models.default.AccountModel.create({name: accountName, token: token, role: role});
+
+    res.send(result);
 };
 
 const updateAccount: any = async (req: Request, res: Response) => {

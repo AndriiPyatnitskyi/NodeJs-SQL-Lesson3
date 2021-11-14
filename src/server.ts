@@ -1,21 +1,21 @@
-/** source/server.ts */
 import http from 'http';
 import express, {Express} from 'express';
 import morgan from 'morgan';
 import accountRouter from './routes/accounts';
 import tokenRouter from './routes/tokens';
 import swaggerUi from 'swagger-ui-express';
+import * as path from "path";
 
 const Sequelize = require('sequelize');
-const account = require("./model/account");
+const accountModel = require("./model/account");
 
 const swaggerDocument = require('./swagger.json');
 const app: Express = express();
 
 /** Init DB */
-const sequelize = new Sequelize('postgres://habrpguser:pgpwd4habr@localhost:5432/habrdb') // Example for postgres
+const connection = new Sequelize('postgres://habrpguser:pgpwd4habr@localhost:5432/habrdb') // Example for postgres
 
-sequelize.authenticate()
+connection.authenticate()
     .then(() => {
     console.log('Connection has been established successfully.');
 }).catch((err: any) => {
@@ -23,9 +23,17 @@ sequelize.authenticate()
 });
 
 // Init tables
-const Account = account(sequelize);
+const AccountModel = accountModel(connection);
 
-Account.sync();
+AccountModel.sync();
+
+// load models
+
+const models = {
+    AccountModel: require(path.join(__dirname, './model/account'))(connection, Sequelize.DataTypes),
+    sequelize: connection,
+    Sequelize: Sequelize
+}
 
 /** Swagger */
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -67,3 +75,5 @@ app.use((req, res, next) => {
 const httpServer = http.createServer(app);
 const PORT: any = process.env.PORT ?? 6062;
 httpServer.listen(PORT, () => console.log(`The server is running on port ${PORT}`));
+
+export { models as default }
