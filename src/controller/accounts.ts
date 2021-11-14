@@ -93,6 +93,10 @@ const createAccountToken: any = async (req: Request, res: Response) => {
 
     const account = await models.default.AccountModel.findByPk(req.params.id);
 
+    if (!account) {
+        res.status(404).send(req.params.id);
+    }
+
     const updated = await models.default.AccountModel.update(
         {
             token: jwt.sign(
@@ -112,35 +116,42 @@ const createAccountToken: any = async (req: Request, res: Response) => {
     if (updated == 1) {
         res.send(await models.default.AccountModel.findByPk(req.params.id));
     } else {
-        res.status(404).send(account);
+        res.sendStatus(500);
     }
 };
 
 const updateAccountToken: any = async (req: Request, res: Response) => {
     if (!req.body) return res.sendStatus(400);
 
-    const accountId = req.params.id
     const accountSourceToken: String = req.body.sourceToken;
     const accountTargetToken: String = req.body.targetToken;
 
-    let data = fs.readFileSync(filePath, "utf8");
+    const account = await models.default.AccountModel.findByPk(req.params.id);
 
-    const accounts = JSON.parse(data);
-    let account: Account = new Account();
-    for (let i = 0; i < accounts.length; i++) {
-        if (accounts[i].id == accountId) {
-            account = accounts[i];
-            break;
-        }
+    if (!account) {
+        res.status(404).send(req.params.id);
     }
 
-    if (account && account.token && account.token == accountSourceToken) {
-        account.token = accountTargetToken;
-        data = JSON.stringify(accounts);
-        fs.writeFileSync("accounts.json", data);
-        res.send(account);
+    if (account.token !== accountSourceToken) {
+        res.status(404).send(req.params.id);
+    }
+
+
+    const updated = await models.default.AccountModel.update(
+        {
+            token: accountTargetToken
+        },
+        {
+            where: {
+                id: req.params.id,
+                token: accountSourceToken
+            }
+        });
+
+    if (updated == 1) {
+        res.send(await models.default.AccountModel.findByPk(req.params.id));
     } else {
-        res.status(404).send(account);
+        res.sendStatus(500);
     }
 };
 
